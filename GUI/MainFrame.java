@@ -1,16 +1,17 @@
 package GUI;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MazeFrame extends JFrame {
+public class MainFrame extends JFrame {
 
     private MazePanel   mazePanel;
     private ControlPanel controlPanel;
     private InfoPanel    infoPanel;
 
-    public MazeFrame() {
+    public MainFrame() {
         setupFrame();
         createComponents();
         layoutComponents();
@@ -123,7 +124,7 @@ public class MazeFrame extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            MazeFrame frame = new MazeFrame();
+            MainFrame frame = new MainFrame();
             frame.setVisible(true);
         });
     }
