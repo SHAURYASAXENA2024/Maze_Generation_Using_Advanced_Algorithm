@@ -1,4 +1,4 @@
-
+package models;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,34 @@ public class Maze {
     // Check if position is valid
     public boolean isValid(int row, int col) {
         return row >= 0 && row < rows && col >= 0 && col < cols;
+    }
+
+    /** Alias for {@link #isValid(int, int)} — used by the GUI layer. */
+    public boolean inBounds(int row, int col) {
+        return isValid(row, col);
+    }
+
+    public boolean isWall(int row, int col) {
+        if (!isValid(row, col)) return true;
+        return grid[row][col].isWall();
+    }
+
+    public boolean isOpen(int row, int col) {
+        return isValid(row, col) && !grid[row][col].isWall();
+    }
+
+    /** Carve a passage at (row, col). */
+    public void open(int row, int col) {
+        if (isValid(row, col)) {
+            grid[row][col].setWall(false);
+        }
+    }
+
+    /** {@code v != 0} means wall, {@code 0} means open passage. */
+    public void setCell(int row, int col, int v) {
+        if (isValid(row, col)) {
+            grid[row][col].setWall(v != 0);
+        }
     }
     
     // Get neighbors of a cell (up, down, left, right)
