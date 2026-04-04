@@ -1,35 +1,39 @@
-import java.util.*;
+package pathfinding;
 
-class Node {
-    int vertex;
-    int heuristic;
+import java.util.PriorityQueue;
 
-    Node(int v, int h) {
-        vertex = v;
-        heuristic = h;
-    }
-}
-
+/**
+ * Greedy best-first search: expands the vertex with lowest heuristic estimate toward the goal.
+ */
 public class greedyBFS {
 
-    static void greedyBFS(List<List<Integer>> graph, int[] h, int start, int goal) {
+    private static final class FrontierNode {
+        final int vertex;
+        final int heuristic;
 
-        boolean[] visited = new boolean[graph.size()];
+        FrontierNode(int v, int h) {
+            vertex = v;
+            heuristic = h;
+        }
+    }
 
-        PriorityQueue<Node> pq =
-                new PriorityQueue<>((a, b) -> a.heuristic - b.heuristic);
+    public static void greedyBFS(Graph graph, int[] h, int start, int goal) {
+        boolean[] visited = new boolean[graph.getVertexCount()];
 
-        pq.add(new Node(start, h[start]));
+        PriorityQueue<FrontierNode> pq =
+                new PriorityQueue<>((a, b) -> Integer.compare(a.heuristic, b.heuristic));
+
+        pq.add(new FrontierNode(start, h[start]));
 
         while (!pq.isEmpty()) {
-
-            Node current = pq.poll();
+            FrontierNode current = pq.poll();
             int u = current.vertex;
 
-            if (visited[u]) continue;
+            if (visited[u]) {
+                continue;
+            }
 
             visited[u] = true;
-
             System.out.print(u + " ");
 
             if (u == goal) {
@@ -37,32 +41,18 @@ public class greedyBFS {
                 return;
             }
 
-            for (int neighbor : graph.get(u)) {
-
+            for (Graph.Edge e : graph.neighbors(u)) {
+                int neighbor = e.to;
                 if (!visited[neighbor]) {
-                    pq.add(new Node(neighbor, h[neighbor]));
+                    pq.add(new FrontierNode(neighbor, h[neighbor]));
                 }
             }
         }
     }
 
     public static void main(String[] args) {
-
-        int V = 6;
-
-        List<List<Integer>> graph = new ArrayList<>();
-
-        for (int i = 0; i < V; i++)
-            graph.add(new ArrayList<>());
-
-        graph.get(0).add(1);
-        graph.get(0).add(2);
-        graph.get(1).add(3);
-        graph.get(1).add(4);
-        graph.get(2).add(5);
-
+        Graph graph = Graph.sampleGraph6();
         int[] heuristic = {5, 3, 4, 2, 6, 1};
-
         greedyBFS(graph, heuristic, 0, 5);
     }
 }
