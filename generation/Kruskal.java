@@ -1,15 +1,15 @@
 import java.util.*;
 
-class Edge implements Comparable<Edge> {
+class KruskalEdge implements Comparable<KruskalEdge> {
     int src, dest, weight;
 
-    Edge(int s, int d, int w) {
+    KruskalEdge(int s, int d, int w) {
         src = s;
         dest = d;
         weight = w;
     }
 
-    public int compareTo(Edge e) {
+    public int compareTo(KruskalEdge e) {
         return this.weight - e.weight;
     }
 }
@@ -28,7 +28,7 @@ public class Kruskal {
         parent[xset] = yset;
     }
 
-    static void kruskal(List<Edge> edges, int V) {
+    static void kruskal(List<KruskalEdge> edges, int V) {
 
         Collections.sort(edges);
 
@@ -41,7 +41,7 @@ public class Kruskal {
 
         System.out.println("Edges in MST:");
 
-        for (Edge e : edges) {
+        for (KruskalEdge e : edges) {
 
             int x = find(parent, e.src);
             int y = find(parent, e.dest);
@@ -62,13 +62,13 @@ public class Kruskal {
 
         int V = 4;
 
-        List<Edge> edges = new ArrayList<>();
+        List<KruskalEdge> edges = new ArrayList<>();
 
-        edges.add(new Edge(0, 1, 10));
-        edges.add(new Edge(0, 2, 6));
-        edges.add(new Edge(0, 3, 5));
-        edges.add(new Edge(1, 3, 15));
-        edges.add(new Edge(2, 3, 4));
+        edges.add(new KruskalEdge(0, 1, 10));
+        edges.add(new KruskalEdge(0, 2, 6));
+        edges.add(new KruskalEdge(0, 3, 5));
+        edges.add(new KruskalEdge(1, 3, 15));
+        edges.add(new KruskalEdge(2, 3, 4));
 
         kruskal(edges, V);
     }
