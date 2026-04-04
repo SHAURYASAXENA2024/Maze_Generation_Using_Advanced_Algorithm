@@ -1,0 +1,25 @@
+# All Java sources (javac @argfile: lines starting with # are ignored).
+
+GUI/AlgorithmCompareDialog.java
+GUI/ColorScheme.java
+GUI/ControlPanel.java
+GUI/InfoPanel.java
+GUI/MainFrame.java
+GUI/MazePanel.java
+GUI/ModernButton.java
+generation/Kruskal.java
+generation/MazeBuilder.java
+generation/prismAlgorithm.java
+generation/RecursiveBacktracker.java
+generation/RecursiveDivision.java
+main/main.java
+models/Cell.java
+models/Maze.java
+pathfinding/AllGraphDemos.java
+pathfinding/Astar.java
+pathfinding/BFS.java
+pathfinding/DFS.java
+pathfinding/dijkstra.java
+pathfinding/greedyBFS.java
+pathfinding/Graph.java
+pathfinding/PathfinderFactory.java
