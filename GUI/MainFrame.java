@@ -59,6 +59,8 @@ public class MainFrame extends JFrame {
         root.setBackground(ColorScheme.BACKGROUND_DARK);
         root.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
+        JPanel titleBar = buildTitleBar();
+
         // Left sidebar
         JScrollPane leftScroll = new JScrollPane(controlPanel);
         leftScroll.setPreferredSize(new Dimension(260, 0));
@@ -78,11 +80,36 @@ public class MainFrame extends JFrame {
         rightScroll.getViewport().setBackground(ColorScheme.PANEL_DARK);
         rightScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        root.add(titleBar, BorderLayout.NORTH);
         root.add(leftScroll,  BorderLayout.WEST);
         root.add(centerWrap,  BorderLayout.CENTER);
         root.add(rightScroll, BorderLayout.EAST);
 
         setContentPane(root);
+    }
+
+    private JPanel buildTitleBar() {
+        JPanel bar = new JPanel(new BorderLayout(10, 0));
+        bar.setBackground(ColorScheme.PANEL_GLASS);
+        bar.setBorder(glassPane());
+
+        JLabel title = new JLabel("Learn With Algos");
+        title.setForeground(ColorScheme.TEXT_PRIMARY);
+        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+
+        JLabel subtitle = new JLabel("Maze generation + pathfinding visualizations (and comparisons)");
+        subtitle.setForeground(ColorScheme.TEXT_SECONDARY);
+        subtitle.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+
+        JPanel text = new JPanel();
+        text.setBackground(ColorScheme.PANEL_GLASS);
+        text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
+        text.add(title);
+        text.add(Box.createVerticalStrut(2));
+        text.add(subtitle);
+
+        bar.add(text, BorderLayout.WEST);
+        return bar;
     }
 
     private void registerKeyboardShortcuts() {

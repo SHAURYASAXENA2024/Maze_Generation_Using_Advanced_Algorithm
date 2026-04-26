@@ -24,10 +24,17 @@ public class ModernButton extends JButton {
         int w = getWidth(), h = getHeight();
         Color bg = getModel().isPressed() ? ColorScheme.BUTTON_PRESS
                 : getModel().isRollover() ? ColorScheme.BUTTON_HOVER : ColorScheme.BUTTON_BG;
-        g2.setColor(bg);
-        g2.fillRoundRect(0, 0, w, h, 10, 10);
+
+        GradientPaint gp = new GradientPaint(0, 0, bg, 0, h, ColorScheme.PANEL_DARK);
+        g2.setPaint(gp);
+        g2.fillRoundRect(0, 0, w, h, 12, 12);
+
+        // Accent strip (educational / modern feel)
+        g2.setColor(getModel().isRollover() ? ColorScheme.ACCENT_PURPLE : ColorScheme.NEON_BLUE);
+        g2.fillRoundRect(0, 0, Math.max(4, w / 20), h, 12, 12);
+
         g2.setColor(ColorScheme.BORDER_SUBTLE);
-        g2.drawRoundRect(0, 0, w - 1, h - 1, 10, 10);
+        g2.drawRoundRect(0, 0, w - 1, h - 1, 12, 12);
         g2.dispose();
         super.paintComponent(g);
     }

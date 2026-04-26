@@ -19,6 +19,8 @@ public final class ColorScheme {
     public static final Color TEXT_PRIMARY    = new Color(0xe8, 0xec, 0xf0);
     public static final Color TEXT_SECONDARY  = new Color(0x8b, 0x92, 0x9e);
     public static final Color NEON_BLUE       = new Color(0x38, 0xbf, 0xff);
+    public static final Color ACCENT_PURPLE   = new Color(0xa7, 0x55, 0xff);
+    public static final Color ACCENT_PINK     = new Color(0xff, 0x4d, 0xb8);
 
     public static final Color CELL_START      = new Color(0x22, 0xc5, 0x5e);
     public static final Color CELL_END        = new Color(0xf4, 0x71, 0x71);
@@ -38,4 +40,5 @@ public final class ColorScheme {
     public static final Color CELL_MANUAL_TRAIL = new Color(0xe8, 0x7d, 0x00);
 
     public static final Color GRID_LINE       = new Color(0x2a, 0x32, 0x40);
+    public static final Color GRID_LINE_SOFT  = new Color(0x21, 0x28, 0x33);
 }

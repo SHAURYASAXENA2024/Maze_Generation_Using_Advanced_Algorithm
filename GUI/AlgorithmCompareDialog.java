@@ -9,6 +9,7 @@ import pathfinding.PathfinderFactory.Result;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,7 +28,7 @@ public final class AlgorithmCompareDialog {
     public static void show(Component parent, Maze maze, MazePanel mazePanel, InfoPanel infoPanel) {
         List<AlgorithmStat> stats = PathfinderFactory.compareAll(maze);
 
-        String[] cols = {"Algorithm", "Path length", "Cells explored", "Time (ms)", "Found?"};
+        String[] cols = {"Algorithm", "Time complexity", "Path length", "Cells explored", "Time (ms)", "Found?"};
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -45,6 +46,7 @@ public final class AlgorithmCompareDialog {
         for (AlgorithmStat s : stats) {
             model.addRow(new Object[]{
                     displayName(s.algorithm),
+                    timeComplexity(s.algorithm),
                     s.pathFound ? Integer.valueOf(s.pathLength) : "—",
                     Integer.valueOf(s.visitedCount),
                     String.format(Locale.US, "%.3f", s.timeNanos / 1_000_000.0),
@@ -58,11 +60,13 @@ public final class AlgorithmCompareDialog {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         styleTable(table);
+        styleHeader(table);
 
         JTextArea summary = new JTextArea(buildSummary(stats, minPath));
         summary.setEditable(false);
-        summary.setOpaque(false);
+        summary.setOpaque(true);
         summary.setForeground(ColorScheme.TEXT_PRIMARY);
+        summary.setBackground(ColorScheme.PANEL_DARK);
         summary.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         summary.setLineWrap(true);
         summary.setWrapStyleWord(true);
@@ -110,6 +114,8 @@ public final class AlgorithmCompareDialog {
         tableWrap.setBackground(ColorScheme.PANEL_DARK);
         JScrollPane sp = new JScrollPane(table);
         sp.getViewport().setBackground(ColorScheme.PANEL_DARK);
+        sp.setBackground(ColorScheme.PANEL_DARK);
+        sp.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER_SUBTLE, 1));
         tableWrap.add(sp, BorderLayout.CENTER);
 
         JPanel root = new JPanel(new BorderLayout(0, 0));
@@ -175,6 +181,26 @@ public final class AlgorithmCompareDialog {
         }
     }
 
+    /**
+     * Big-O for a graph search on a grid graph with V vertices and E edges.
+     * (A* / greedy are worst-case; heuristic quality can reduce explored nodes in practice.)
+     */
+    static String timeComplexity(Algorithm a) {
+        switch (a) {
+            case DIJKSTRA:
+                return "O((V+E) log V)";
+            case GREEDY_BFS:
+                return "O((V+E) log V) worst";
+            case ASTAR:
+                return "O((V+E) log V) worst";
+            case DFS:
+                return "O(V+E)";
+            case BFS:
+            default:
+                return "O(V+E)";
+        }
+    }
+
     private static void styleTable(JTable t) {
         t.setBackground(ColorScheme.PANEL_DARK);
         t.setForeground(ColorScheme.TEXT_PRIMARY);
@@ -183,5 +209,14 @@ public final class AlgorithmCompareDialog {
         t.setGridColor(ColorScheme.BORDER_SUBTLE);
         t.getTableHeader().setBackground(ColorScheme.BUTTON_BG);
         t.getTableHeader().setForeground(ColorScheme.TEXT_PRIMARY);
+    }
+
+    private static void styleHeader(JTable t) {
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+        r.setOpaque(true);
+        r.setBackground(ColorScheme.BUTTON_BG);
+        r.setForeground(ColorScheme.TEXT_PRIMARY);
+        r.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ColorScheme.BORDER_SUBTLE));
+        t.getTableHeader().setDefaultRenderer(r);
     }
 }

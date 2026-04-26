@@ -32,6 +32,7 @@ public class MazePanel extends JPanel {
 
     // Animation
     private javax.swing.Timer animTimer;
+    private javax.swing.Timer uiPulseTimer;
     private boolean isAnimating = false;
     private boolean isPaused    = false;
     private Runnable resumeTask;
@@ -39,6 +40,12 @@ public class MazePanel extends JPanel {
     public MazePanel() {
         setBackground(ColorScheme.BACKGROUND_DARK);
         setPreferredSize(new Dimension(600, 600));
+
+        uiPulseTimer = new javax.swing.Timer(33, e -> {
+            if (maze == null) return;
+            if (isAnimating || clickMode == ClickMode.MANUAL_SOLVE) repaint();
+        });
+        uiPulseTimer.start();
 
         MouseAdapter ma = new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e)  { handleClick(e); }
@@ -316,6 +323,7 @@ public class MazePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (maze == null) { drawPlaceholder(g2); return; }
 
@@ -326,22 +334,76 @@ public class MazePanel extends JPanel {
         boolean showSearchPalette = !visitedSet.isEmpty() || !finalPath.isEmpty()
                 || (clickMode == ClickMode.MANUAL_SOLVE && !manualTrail.isEmpty());
 
+        // Subtle “glass” gradient behind the maze
+        Paint oldPaint = g2.getPaint();
+        g2.setPaint(new GradientPaint(0, 0, ColorScheme.PANEL_GLASS, 0, getHeight(), ColorScheme.BACKGROUND_DARK));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.setPaint(oldPaint);
+
+        long now = System.nanoTime();
+        float pulse = (float) (0.5 + 0.5 * Math.sin(now / 500_000_000.0)); // ~2Hz
+        float ringAlpha = 0.10f + 0.20f * pulse;
+
         for (int r = 0; r < maze.getRows(); r++) {
             for (int c = 0; c < maze.getCols(); c++) {
                 int x = offX + c * cs, y = offY + r * cs;
                 Color col = getCellColor(r, c, showSearchPalette);
                 g2.setColor(col);
-                g2.fillRect(x + 1, y + 1, cs - 2, cs - 2);
+                int pad = Math.max(1, cs / 12);
+                int w = cs - pad * 2;
+                int h = cs - pad * 2;
+                int arc = Math.max(6, cs / 3);
+                g2.fillRoundRect(x + pad, y + pad, w, h, arc, arc);
 
                 if (maze.isWall(r, c) && cs >= 6) {
                     g2.setColor(ColorScheme.CELL_WALL_EDGE);
-                    g2.drawRect(x + 1, y + 1, cs - 3, cs - 3);
+                    g2.drawRoundRect(x + pad, y + pad, w - 1, h - 1, arc, arc);
                     g2.setColor(ColorScheme.CELL_WALL_HIGHLIGHT);
-                    g2.drawLine(x + 2, y + 2, x + cs - 3, y + 2);
-                    g2.drawLine(x + 2, y + 2, x + 2, y + cs - 3);
+                    g2.drawLine(x + pad + 1, y + pad + 1, x + pad + w - 2, y + pad + 1);
+                    g2.drawLine(x + pad + 1, y + pad + 1, x + pad + 1, y + pad + h - 2);
+                } else if (cs >= 7) {
+                    g2.setColor(ColorScheme.GRID_LINE_SOFT);
+                    g2.drawRoundRect(x + pad, y + pad, w - 1, h - 1, arc, arc);
+                }
+
+                // Soft glow overlay for path / manual trail to feel more “alive”
+                if (cs >= 9) {
+                    if (isOnFinalPath(r, c)) {
+                        g2.setComposite(AlphaComposite.SrcOver.derive(0.18f));
+                        g2.setColor(ColorScheme.NEON_BLUE);
+                        g2.fillRoundRect(x + pad, y + pad, w, h, arc, arc);
+                        g2.setComposite(AlphaComposite.SrcOver);
+                    } else if (isOnManualTrail(r, c)) {
+                        g2.setComposite(AlphaComposite.SrcOver.derive(0.12f));
+                        g2.setColor(ColorScheme.ACCENT_PINK);
+                        g2.fillRoundRect(x + pad, y + pad, w, h, arc, arc);
+                        g2.setComposite(AlphaComposite.SrcOver);
+                    }
                 }
             }
         }
+
+        // Pulse rings for start/end to guide attention
+        Cell s = maze.getStart(), e = maze.getEnd();
+        if (cs >= 10) {
+            if (s != null) drawPulseRing(g2, offX, offY, cs, s.getRow(), s.getCol(), ColorScheme.CELL_START, ringAlpha);
+            if (e != null) drawPulseRing(g2, offX, offY, cs, e.getRow(), e.getCol(), ColorScheme.CELL_END, ringAlpha);
+        }
+    }
+
+    private void drawPulseRing(Graphics2D g2, int offX, int offY, int cs, int r, int c, Color base, float a) {
+        int x = offX + c * cs;
+        int y = offY + r * cs;
+        int pad = Math.max(1, cs / 12);
+        int w = cs - pad * 2;
+        int h = cs - pad * 2;
+        int arc = Math.max(6, cs / 3);
+        g2.setComposite(AlphaComposite.SrcOver.derive(a));
+        g2.setColor(base);
+        g2.setStroke(new BasicStroke(Math.max(2f, cs / 10f)));
+        g2.drawRoundRect(x + pad, y + pad, w - 1, h - 1, arc, arc);
+        g2.setStroke(new BasicStroke(1f));
+        g2.setComposite(AlphaComposite.SrcOver);
     }
 
     private Color getCellColor(int r, int c, boolean showSearchPalette) {
